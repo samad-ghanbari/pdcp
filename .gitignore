@@ -1,6 +1,4 @@
 
-/vendor
-
 /assets/*
 !/assets/AppAsset.php
 
