@@ -2,4 +2,9 @@
 /assets/*
 !/assets/AppAsset.php
 
+/vendor/*
+!/vendor/1.zip
+!/vendor/2.zip
+!/vendor/3.zip
+
 /config
