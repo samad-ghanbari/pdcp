@@ -207,4 +207,23 @@ class PurchaseController extends Controller
         return $this->redirect(['purchase/index']);
     }
 
+    public function actionView($id)
+    {
+        $session = Yii::$app->session;
+        $session->open();
+        if(isset($session['user']))
+        {
+            $model = \app\models\PcPurchases::find()->where(['id'=>$id])->one();
+            if($model)
+            {
+                $creator = \app\models\PcUsers::find()->where(['id'=>$model->creator_id])->one();
+                $modifier = \app\models\PcUsers::find()->where(['id'=>$model->modifier_id])->one();
+                return $this->render('view', ['model'=>$model, 'creator'=>$creator, 'modifier'=>$modifier]);
+            }
+            else
+                return $this->redirect(['purchase/index']);
+        }
+        else
+            return $this->redirect(['main/login']);
+    }
 }

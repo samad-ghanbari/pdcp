@@ -42,7 +42,7 @@ if(isset($sessoin['user']))
                         echo GridView::widget([
                             'tableOptions'=>['id'=>"perchase-Table", 'class'=>'table table-striped table-bordered table-hover text-center '],
                             //'headerRowOptions'=>['class'=>'bg-info text-center'],
-                            'rowOptions' =>function ($model, $key, $index, $grid) {return ['id'=>'row'.$model['id'], 'class'=>'table_row', 'style'=>"cursor:pointer", 'onclick'=>'activateRow(this.getAttribute("id"));', 'ondblclick'=>'console.log(this.getAttribute("id"));'];},
+                            'rowOptions' =>function ($model, $key, $index, $grid) {return ['id'=>'row'.$model['id'], 'pid'=>$model["id"], 'class'=>'table_row', 'style'=>"cursor:pointer", 'onclick'=>'activateRow(this.getAttribute("id"));', 'ondblclick'=>'showPurchase(this.getAttribute("pid"))'];},
                             'dataProvider' => $dataProvider,
                             'filterModel' => $searchModel,
                             'filterRowOptions' =>['style'=>"direction:ltr"],
@@ -76,6 +76,7 @@ if(isset($sessoin['user']))
                                 //3
                                 [
                                     'attribute' =>'lom',
+                                    'filter' => false,
                                     'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
                                     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'برآورد خرید'],
                                     'format'=>'html',
@@ -90,6 +91,7 @@ if(isset($sessoin['user']))
                                 //۴
                                 [
                                     'attribute' =>'factor',
+                                    'filter' => false,
                                     'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
                                     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'فاکتور خرید'],
                                     'format'=>'html',
@@ -105,6 +107,7 @@ if(isset($sessoin['user']))
                                 
                                 [
                                     'attribute' =>'created_at',
+                                    'filter' => false,
                                     'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
                                     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'زمان ثبت'],
                                     'format'=>'html',
@@ -117,11 +120,24 @@ if(isset($sessoin['user']))
                                 ],
                                 [
                                     'attribute' =>'modified_at',
+                                    'filter' => false,
                                     'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
                                     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'زمان ویرایش'],
                                     'format'=>'html',
                                     'value'=>function($data){if(empty($data['modified_at'])) return ''; else return \app\components\Jdf::jdate("Y/m/d", $data["modified_at"]);}
-                                ]
+                                ],
+                                [
+                                    'class' => 'yii\grid\ActionColumn',
+                                    'template' => '{project_detail}',
+                                    'header'=>"عملیات",
+                                    'headerOptions' => ['class' => 'bg-success text-center text-info', 'style'=>'height:80px; line-height:80px;'],
+                                    'buttons' => ['update' => function($url, $model, $key){ return "<a href=\"$url\"><i class='fa fa-times text-info'></i></a>";}],
+                                    'urlCreator' => function ($action, $model, $key, $index)
+                                        {
+                                            $url = Yii::$app->request->baseUrl.'/purchase/update?id='.$model->id;
+                                                return $url;
+                                        }
+                                ],
                             ],
                         ]);
                         
@@ -137,12 +153,21 @@ if(isset($sessoin['user']))
 
     <?php
 
+$url = Yii::$app->request->baseUrl.'/purchase/view?id=';
 $script =<<< JS
-
 function activateRow(rowId)
 {
     $(".selectedRowHome").removeClass("selectedRowHome");
     $("#"+rowId).addClass("selectedRowHome");
+}
+
+function showPurchase(id)
+{
+
+    activateRow("row"+id);
+    let url = "$url"+id;
+    //window.location.href = url;
+    window.open(url, "_self");
 }
 
 JS;

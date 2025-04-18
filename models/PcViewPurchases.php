@@ -67,7 +67,7 @@ class PcViewPurchases extends \yii\db\ActiveRecord
             'creator' => 'ثبت کننده',
             'created_at' => 'تاریخ ثبت',
             'modifier_id' => 'Modifier ID',
-            'modifier' => 'ویرایش',
+            'modifier' => 'ویرایش کننده',
             'modified_at' => 'تاریخ ویرایش',
             'purchase_code' => 'شماره ثبت سامانه',
             'done' => 'ثبت نهایی'
