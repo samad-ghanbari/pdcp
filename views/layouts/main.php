@@ -101,6 +101,8 @@ AppAsset::register($this);
                 ],
 
                 ['label' => " <i class='fa fa-bell text-white'></i>"." اعلانات ", 'encode' => false, 'url' => '/main/notifications',  'active'=>in_array(\Yii::$app->controller->action->id, ['notifications'])],
+                ['label' => " <i class='fa fa-shopping-cart text-white'></i>"." خرید منطقه ", 'encode' => false, 'url' => '/purchase/index',  'active'=>in_array(\Yii::$app->controller->id, ['purchase'])],
+
 
 //                ['visible'=>true, 'encode'=>false,'label' =>"  <i class='fa fa-file-excel text-white'></i>"." گزارشات " , 'active'=>in_array(\Yii::$app->controller->id, ['report']),
 //                    'items'=>[
