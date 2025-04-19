@@ -81,12 +81,13 @@ if(isset($sessoin['user']))
                                     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'برآورد خرید'],
                                     'format'=>'html',
                                     'value'=>function($data){
-                                        if(empty($data['lom'])) 
+                                        if(empty($data['lom'])) {
                                             return "<i class='fa fa-times text-danger'></i>";
-                                        else
-                                            return '<i class="fa fa-file text-success"></i>';
+                                        } else {
+                                            $fileUrl = Yii::$app->request->baseUrl . '/uploads/' . $data['lom'];
+                                            return Html::a('<i class="fa fa-download text-success"></i>', $fileUrl, ['title' => 'دانلود فایل', 'target' => '_blank']);
                                         }
-
+                                    }
                                 ],
                                 //۴
                                 [
@@ -95,7 +96,14 @@ if(isset($sessoin['user']))
                                     'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
                                     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'فاکتور خرید'],
                                     'format'=>'html',
-                                    'value'=>function($data){if(empty($data['lom'])) return '<i class="fa fa-times text-danger"></i>'; else return '<i class="fa fa-file text-success"></i>';}
+                                    'value'=>function($data){
+                                        if(empty($data['factor'])) {
+                                            return "<i class='fa fa-times text-danger'></i>";
+                                        } else {
+                                            $fileUrl = Yii::$app->request->baseUrl . '/uploads/' . $data['factor'];
+                                            return Html::a('<i class="fa fa-download text-success"></i>', $fileUrl, ['title' => 'مشاهده فاکتور', 'target' => '_blank']);
+                                        }
+                                    }
                                 ],
                                 //8
                                 [
@@ -113,30 +121,50 @@ if(isset($sessoin['user']))
                                     'format'=>'html',
                                     'value'=>function($data){if(empty($data['created_at'])) return ''; else return \app\components\Jdf::jdate("Y/m/d", $data["created_at"]);}
                                 ],
-                                [
-                                    'attribute' =>'modifier',
-                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
-                                    'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'ویرایش'],
-                                ],
-                                [
-                                    'attribute' =>'modified_at',
-                                    'filter' => false,
-                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
-                                    'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'زمان ویرایش'],
-                                    'format'=>'html',
-                                    'value'=>function($data){if(empty($data['modified_at'])) return ''; else return \app\components\Jdf::jdate("Y/m/d", $data["modified_at"]);}
-                                ],
+                                // [
+                                //     'attribute' =>'modifier',
+                                //     'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                //     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'ویرایش'],
+                                // ],
+                                // [
+                                //     'attribute' =>'modified_at',
+                                //     'filter' => false,
+                                //     'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                //     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'زمان ویرایش'],
+                                //     'format'=>'html',
+                                //     'value'=>function($data){if(empty($data['modified_at'])) return ''; else return \app\components\Jdf::jdate("Y/m/d", $data["modified_at"]);}
+                                // ],
                                 [
                                     'class' => 'yii\grid\ActionColumn',
-                                    'template' => '{project_detail}',
+                                    'template' => '{project_detail}&nbsp;&nbsp;&nbsp;&nbsp;{update}&nbsp;&nbsp;&nbsp;&nbsp;{delete}',
                                     'header'=>"عملیات",
                                     'headerOptions' => ['class' => 'bg-success text-center text-info', 'style'=>'height:80px; line-height:80px;'],
-                                    'buttons' => ['update' => function($url, $model, $key){ return "<a href=\"$url\"><i class='fa fa-times text-info'></i></a>";}],
-                                    'urlCreator' => function ($action, $model, $key, $index)
-                                        {
-                                            $url = Yii::$app->request->baseUrl.'/purchase/update?id='.$model->id;
-                                                return $url;
+                                    'buttons' => [
+                                        'project_detail' => function($url, $model, $key) {
+                                            return Html::a('<i class="fa fa-info-circle text-info"></i>', $url, ['title' => 'نمایش اطلاعات خرید']);
+                                        },
+                                        'update' => function($url, $model, $key) {
+                                            return Html::a('<i class="fa fa-edit text-success"></i>', $url, ['title' => 'ویرایش ']);
+                                        },
+                                        'delete' => function($url, $model, $key) {
+                                            return Html::a('<i class="fa fa-trash text-danger"></i>', $url, [
+                                                'title' => 'حذف خرید',
+                                                'data-confirm' => 'آیا از حذف این خرید مطمئن هستید؟',
+                                                'data-method' => 'post',
+                                            ]);
+                                        },
+                                    ],
+                                    'urlCreator' => function ($action, $model, $key, $index) {
+                                        if ($action === 'project_detail') {
+                                            return Yii::$app->request->baseUrl . '/purchase/view?id=' . $model->id;
                                         }
+                                        if ($action === 'update') {
+                                            return Yii::$app->request->baseUrl . '/purchase/update_page?id=' . $model->id;
+                                        }
+                                        if ($action === 'delete') {
+                                            return Yii::$app->request->baseUrl . '/purchase/delete?id=' . $model->id;
+                                        }
+                                    }
                                 ],
                             ],
                         ]);
@@ -157,8 +185,8 @@ $url = Yii::$app->request->baseUrl.'/purchase/view?id=';
 $script =<<< JS
 function activateRow(rowId)
 {
-    $(".selectedRowHome").removeClass("selectedRowHome");
-    $("#"+rowId).addClass("selectedRowHome");
+    $(".selectedRowPurchase").removeClass("selectedRowPurchase");
+    $("#"+rowId).addClass("selectedRowPurchase");
 }
 
 function showPurchase(id)
