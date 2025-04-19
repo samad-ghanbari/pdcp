@@ -216,9 +216,16 @@ class PurchaseController extends Controller
             $model = \app\models\PcViewPurchases::find()->where(['id'=>$id])->one();
             if($model)
             {
-                $creator = \app\models\PcUsers::find()->where(['id'=>$model->creator_id])->one();
-                $modifier = \app\models\PcUsers::find()->where(['id'=>$model->modifier_id])->one();
-                return $this->render('view', ['model'=>$model, 'creator'=>$creator, 'modifier'=>$modifier]);
+                $creator = $this->getUserName($model->creator_id);
+                $modifier = $this->getUserName($model->modifier_id);
+
+                $created_at = $this->getDate($model["created_at"]);
+                $modified_at = $this->getDate($model["modified_at"]);
+
+                $model_detail = \app\models\PcPurchaseDetail::find()->where(['purchase_id'=>$id])->one();
+
+
+                return $this->render('view', ['model'=>$model, 'model_detail'=>$model_detail, 'creator'=>$creator, 'modifier'=>$modifier, 'created_at'=>$created_at, 'modified_at'=>$modified_at]);
             }
             else
                 return $this->redirect(['purchase/index']);
@@ -259,7 +266,7 @@ class PurchaseController extends Controller
                             unlink($existingFilePath);
                         }
                     }
-                    
+
                     $model->delete();
                     Yii::$app->session->setFlash('success','عملیات با موفقیت انجام شد.');
                 }
