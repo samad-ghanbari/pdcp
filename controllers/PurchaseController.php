@@ -47,63 +47,61 @@ class PurchaseController extends Controller
         {
             $user = $session['user'];
 
+            $area = [];
+            if($user['action_role'] == "design")
+                $area = [2, 3, 4, 5, 6, 7, 8];
+            else if($user['action_role'] == "district")
+            {
+                $office = $user["office"];
+                if(strpos($office, "منطقه") !== false)
+                {
+                    if( (strpos($office, "2") !== false) || (strpos($office, "۲") !== false) )
+                    {
+                        $area = [2];
+                    }
+                    else if( (strpos($office, "3") !== false) || (strpos($office, "۳") !== false) )
+                    {
+                        $area = [3];
+                    }
+                    else if( (strpos($office, "4") !== false) || (strpos($office, "۴") !== false) )
+                    {
+                        $area = [4];
+                    }
+                    else if( (strpos($office, "5") !== false) || (strpos($office, "۵") !== false) )
+                    {
+                        $area = [5];
+                    }
+                    else if( (strpos($office, "6") !== false) || (strpos($office, "۶") !== false) )
+                    {
+                        $area = [6];
+                    }
+                    else if( (strpos($office, "7") !== false) || (strpos($office, "۷") !== false) )
+                    {
+                        $area = [7];
+                    }
+                    else if( (strpos($office, "8") !== false) || (strpos($office, "۸") !== false) )
+                    {
+                        $area = [8];
+                    }
+                }
+            }
+
             $searchModel = new \app\models\PcViewPurchasesSearch();
             $params = Yii::$app->request->queryParams;
             if ($params)
             {
                 $dataProvider = $searchModel->search($params);
-                $dataProvider->query->andWhere(['creator'=>$user['id']]);
-                $dataProvider->query->orderBy(['create_at'=>SORT_DESC]);                
+                $dataProvider->query->andWhere(['area'=>$area]);
+                $dataProvider->query->orderBy(['created_at'=>SORT_DESC]);                
             }
             else
             {
-                $area = [];
-                if($user['action_role'] == "design")
-                    $area = [2, 3, 4, 5, 6, 7, 8];
-                else if($user['action_role'] == "district")
-                {
-                    $office = $user["office"];
-                    if(strpos($office, "منطقه") !== false)
-                    {
-                        if( (strpos($office, "2") !== false) || (strpos($office, "۲") !== false) )
-                        {
-                            $area = [2];
-                        }
-                        else if( (strpos($office, "3") !== false) || (strpos($office, "۳") !== false) )
-                        {
-                            $area = [3];
-                        }
-                        else if( (strpos($office, "4") !== false) || (strpos($office, "۴") !== false) )
-                        {
-                            $area = [4];
-                        }
-                        else if( (strpos($office, "5") !== false) || (strpos($office, "۵") !== false) )
-                        {
-                            $area = [5];
-                        }
-                        else if( (strpos($office, "6") !== false) || (strpos($office, "۶") !== false) )
-                        {
-                            $area = [6];
-                        }
-                        else if( (strpos($office, "7") !== false) || (strpos($office, "۷") !== false) )
-                        {
-                            $area = [7];
-                        }
-                        else if( (strpos($office, "8") !== false) || (strpos($office, "۸") !== false) )
-                        {
-                            $area = [8];
-                        }
-                    }
-                }
+                if($user['admin'] == 1)
+                    $qry = \app\models\PcViewPurchases::find()->select('id, title, area, lom, factor, creator_id, creator, created_at, modifier_id, modifier, modified_at, purchase_code, done')->orderBy(['created_at'=>SORT_DESC]);
+                else
+                    $qry = \app\models\PcViewPurchases::find()->select('id, title, area, lom, factor, creator_id, creator, created_at, modifier_id, modifier, modified_at, purchase_code, done')->where(['area'=>$area])->orderBy(['created_at'=>SORT_DESC]);
 
-
-
-            if($user['admin'] == 1)
-                $qry = \app\models\PcViewPurchases::find()->select('id, title, area, lom, factor, creator_id, creator, created_at, modifier_id, modifier, modified_at, purchase_code, done')->orderBy(['created_at'=>SORT_DESC]);
-            else
-                $qry = \app\models\PcViewPurchases::find()->select('id, title, area, lom, factor, creator_id, creator, created_at, modifier_id, modifier, modified_at, purchase_code, done')->where(['area'=>$area])->orderBy(['created_at'=>SORT_DESC]);
-
-            $dataProvider = new \yii\data\ActiveDataProvider(['query' => $qry]);
+                $dataProvider = new \yii\data\ActiveDataProvider(['query' => $qry]);
             }
             $dataProvider->pagination->pageSize = 25;
 

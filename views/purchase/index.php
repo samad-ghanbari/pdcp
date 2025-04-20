@@ -59,25 +59,26 @@ if(isset($sessoin['user']))
                                 ],
                                 //1
                                 [
+                                    'attribute' =>'area',
+                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px; width:100px;'],
+                                    'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:100px;font-size:16px;", 'title'=>'منطقه'],
+                                    'filter' => Html::activeDropDownList(
+                                        $searchModel,
+                                        'area',
+                                        ['2'=>2, '3'=>3, '4'=>4, '5'=>5, '6'=>6, '7'=>7, '8'=>8], // Array of area values
+                                        ['class' => 'form-control', 'prompt' => '-']
+                                    ),
+                                ],
+                                [
                                     'attribute' =>'title',
                                     'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
                                     'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'عنوان خرید'],
-                                ],
-                                [
-                                    'attribute' =>'area',
-                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
-                                    'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'منطقه'],
-                                ],
-                                [
-                                    'attribute' =>'purchase_code',
-                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
-                                    'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'کد خرید'],
                                 ],
                                 //3
                                 [
                                     'attribute' =>'lom',
                                     'filter' => false,
-                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;  width:100px;'],
                                     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'برآورد خرید'],
                                     'format'=>'html',
                                     'value'=>function($data){
@@ -93,7 +94,7 @@ if(isset($sessoin['user']))
                                 [
                                     'attribute' =>'factor',
                                     'filter' => false,
-                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;  width:100px;'],
                                     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'فاکتور خرید'],
                                     'format'=>'html',
                                     'value'=>function($data){
@@ -108,7 +109,7 @@ if(isset($sessoin['user']))
                                 //8
                                 [
                                     'attribute' =>'creator',
-                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;  width:300px;'],
                                     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'ثبت کننده'],
                                 ],
                                 //9
@@ -116,10 +117,15 @@ if(isset($sessoin['user']))
                                 [
                                     'attribute' =>'created_at',
                                     'filter' => false,
-                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;  width:200px;'],
                                     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'زمان ثبت'],
                                     'format'=>'html',
                                     'value'=>function($data){if(empty($data['created_at'])) return ''; else return \app\components\Jdf::jdate("Y/m/d", $data["created_at"]);}
+                                ],
+                                [
+                                    'attribute' =>'purchase_code',
+                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;  width:200px;'],
+                                    'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'کد خرید'],
                                 ],
 
                                 [

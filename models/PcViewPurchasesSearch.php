@@ -32,6 +32,42 @@ class PcViewPurchasesSearch extends PcViewPurchases
         return Model::scenarios();
     }
 
+    public function toPersianDigits($str)
+    {
+        $persianDigits = [
+            '0' => '۰',
+            '1' => '۱',
+            '2' => '۲',
+            '3' => '۳',
+            '4' => '۴',
+            '5' => '۵',
+            '6' => '۶',
+            '7' => '۷',
+            '8' => '۸',
+            '9' => '۹'
+        ];
+
+        return strtr($str, $persianDigits);
+    }
+
+    public function toEnglishDigits($str)
+    {
+        $englishDigits = [
+            '۰' => '0',
+            '۱' => '1',
+            '۲' => '2',
+            '۳' => '3',
+            '۴' => '4',
+            '۵' => '5',
+            '۶' => '6',
+            '۷' => '7',
+            '۸' => '8',
+            '۹' => '9'
+        ];
+
+        return (int)strtr($str, $englishDigits);
+    }
+
     /**
      * Creates data provider instance with search query applied
      *
@@ -73,7 +109,7 @@ class PcViewPurchasesSearch extends PcViewPurchases
             ->andFilterWhere(['ilike', 'factor', $this->factor])
             ->andFilterWhere(['ilike', 'creator', $this->creator])
             ->andFilterWhere(['ilike', 'modifier', $this->modifier])
-            ->andFilterWhere(['ilike', 'purchase_code', $this->purchase_code]);
+            ->andFilterWhere(['ilike', 'purchase_code', $this->toPersianDigits($this->purchase_code)]);
 
         return $dataProvider;
     }

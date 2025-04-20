@@ -67,7 +67,7 @@ use yii\grid\GridView;
                         <td>
                             <?php
                                 $fileUrl = Yii::$app->request->baseUrl . '/uploads/' . $model['lom'];
-                                if($model["lom"] !== "")
+                                if(empty(!$model["lom"]))
                                 {
                                     echo Html::a('<i class="fa fa-download text-success"></i>', $fileUrl, ['title' => 'دانلود فایل', 'target' => '_blank']);
                                 }
@@ -85,7 +85,7 @@ use yii\grid\GridView;
                         <td>
                         <?php
                                 $fileUrl = Yii::$app->request->baseUrl . '/uploads/' . $model['factor'];
-                                if($model["factor"] !== "")
+                                if(empty(!$model["factor"]))
                                 {
                                     echo Html::a('<i class="fa fa-download text-success"></i>', $fileUrl, ['title' => 'دانلود فایل', 'target' => '_blank']);
                                 }
@@ -160,7 +160,7 @@ use yii\grid\GridView;
                         ],
                         [
                             'attribute' =>'quantity',
-                            'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                            'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;  width:50px;'],
                             'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'تعداد'],
                         ],
                         [
@@ -172,7 +172,7 @@ use yii\grid\GridView;
                         [
                             'attribute' =>'equipment_photo',
                             'filter' => false,
-                            'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                            'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;  width:100px;'],
                             'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'تصویر تجهیز'],
                             'format'=>'html',
                             'value'=>function($data){
