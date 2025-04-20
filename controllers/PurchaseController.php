@@ -57,11 +57,51 @@ class PurchaseController extends Controller
             }
             else
             {
+                $area = [];
+                if($user['action_role'] == "design")
+                    $area = [2, 3, 4, 5, 6, 7, 8];
+                else if($user['action_role'] == "district")
+                {
+                    $office = $user["office"];
+                    if(strpos($office, "منطقه") !== false)
+                    {
+                        if( (strpos($office, "2") !== false) || (strpos($office, "۲") !== false) )
+                        {
+                            $area = [2];
+                        }
+                        else if( (strpos($office, "3") !== false) || (strpos($office, "۳") !== false) )
+                        {
+                            $area = [3];
+                        }
+                        else if( (strpos($office, "4") !== false) || (strpos($office, "۴") !== false) )
+                        {
+                            $area = [4];
+                        }
+                        else if( (strpos($office, "5") !== false) || (strpos($office, "۵") !== false) )
+                        {
+                            $area = [5];
+                        }
+                        else if( (strpos($office, "6") !== false) || (strpos($office, "۶") !== false) )
+                        {
+                            $area = [6];
+                        }
+                        else if( (strpos($office, "7") !== false) || (strpos($office, "۷") !== false) )
+                        {
+                            $area = [7];
+                        }
+                        else if( (strpos($office, "8") !== false) || (strpos($office, "۸") !== false) )
+                        {
+                            $area = [8];
+                        }
+                    }
+                }
+
+
 
             if($user['admin'] == 1)
                 $qry = \app\models\PcViewPurchases::find()->select('id, title, area, lom, factor, creator_id, creator, created_at, modifier_id, modifier, modified_at, purchase_code, done')->orderBy(['created_at'=>SORT_DESC]);
             else
-                $qry = \app\models\PcViewPurchases::find()->select('id, title, area, lom, factor, creator_id, creator, created_at, modifier_id, modifier, modified_at, purchase_code, done')->where(['area'=>[2, 3]])->orderBy(['created_at'=>SORT_DESC]);
+                $qry = \app\models\PcViewPurchases::find()->select('id, title, area, lom, factor, creator_id, creator, created_at, modifier_id, modifier, modified_at, purchase_code, done')->where(['area'=>$area])->orderBy(['created_at'=>SORT_DESC]);
 
             $dataProvider = new \yii\data\ActiveDataProvider(['query' => $qry]);
             }
@@ -216,16 +256,25 @@ class PurchaseController extends Controller
             $model = \app\models\PcViewPurchases::find()->where(['id'=>$id])->one();
             if($model)
             {
-                $creator = $this->getUserName($model->creator_id);
-                $modifier = $this->getUserName($model->modifier_id);
-
                 $created_at = $this->getDate($model["created_at"]);
                 $modified_at = $this->getDate($model["modified_at"]);
 
-                $model_detail = \app\models\PcPurchaseDetail::find()->where(['purchase_id'=>$id])->one();
+                $searchModel = new \app\models\PcPurchaseDetailSearch();
+                $dataProvider = [];
+                $params = Yii::$app->request->queryParams;
+                if ($params)
+                {
+                    $dataProvider = $searchModel->search($params);
+                    $dataProvider->query->andWhere(['purchase_id' => $id]);
+                }
+                else
+                {
+                    $qry = \app\models\PcPurchaseDetail::find()->select('')->where(['purchase_id'=>$model['id']])->orderBy(['id'=>SORT_ASC]);
+                    $dataProvider = new \yii\data\ActiveDataProvider(['query' => $qry]);
+                }
+                $dataProvider->pagination->pageSize = 25;
 
-
-                return $this->render('view', ['model'=>$model, 'model_detail'=>$model_detail, 'creator'=>$creator, 'modifier'=>$modifier, 'created_at'=>$created_at, 'modified_at'=>$modified_at]);
+                return $this->render('view', ['model'=>$model, 'searchModel'=>$searchModel, 'dataProvider'=>$dataProvider, 'created_at'=>$created_at, 'modified_at'=>$modified_at]);
             }
             else
                 return $this->redirect(['purchase/index']);
@@ -241,13 +290,20 @@ class PurchaseController extends Controller
         if(isset($session['user']))
         {
             $model = \app\models\PcPurchases::find()->where(['id'=>$id])->one();
+            $cnt = \app\models\PcPurchaseDetail::find()->where(['purchase_id'=>$id])->count();
+
             if($model)
             {
                 $code = $model->purchase_code;
                 if($code != "")
                 {
                     Yii::$app->session->setFlash('error','امکان حذف خریدهایی که ثبت نهایی شده‌اند، وجود ندارد.');
-                    return $this->redirect(['purchase/index']);
+                    return $this->redirect(['purchase/view', 'id'=>$id]);
+                }
+                else if($cnt > 0)
+                {
+                    Yii::$app->session->setFlash('error','برای حذف خرید، ابتدا باید جزئیات آن را حذف کنید.');
+                    return $this->redirect(['purchase/view', 'id'=>$id]);
                 }
                 else{
                     $lom = $model->lom;
@@ -427,6 +483,9 @@ class PurchaseController extends Controller
             }
             else
                 Yii::$app->session->setFlash('error','ورود اطلاعات با خطا مواجه شد.');
+
+            return $this->redirect(['purchase/view', 'id'=>$id]);
+
         }
 
         return $this->redirect(['purchase/index']);
@@ -450,4 +509,232 @@ class PurchaseController extends Controller
     {
         return \app\components\Jdf::jdate('Y/m/d', $ts);
     }
+
+    public function actionDone($id)
+    {
+        $session = Yii::$app->session;
+        $session->open();
+        if(isset($session['user']))
+        {
+            $model = \app\models\PcPurchases::find()->where(['id'=>$id])->one();
+            if($model)
+            {
+                $model->done = true;
+                $model->modifier_id = $session['user']['id'];
+                $model->modified_at = time();
+                $model->purchase_code = \app\components\Jdf::jdate('Ym', $model->modified_at) . "-" . $model->area . "-" . $model->id;
+                $model->purchase_code = $this->toPersianDigits($model->purchase_code);
+
+                if($model->update(false))
+                {
+                    Yii::$app->session->setFlash('success','عملیات با موفقیت انجام شد.');
+                }
+                else
+                    Yii::$app->session->setFlash('error','ورود اطلاعات با خطا مواجه شد.');
+            }
+            else
+                Yii::$app->session->setFlash('error','ورود اطلاعات با خطا مواجه شد.');
+        }
+        else
+            return $this->redirect(['main/login']);
+        
+        return $this->redirect(['purchase/view', 'id'=>$id]);
+    }
+
+    public function toPersianDigits($str)
+    {
+        $persianDigits = [
+            '0' => '۰',
+            '1' => '۱',
+            '2' => '۲',
+            '3' => '۳',
+            '4' => '۴',
+            '5' => '۵',
+            '6' => '۶',
+            '7' => '۷',
+            '8' => '۸',
+            '9' => '۹'
+        ];
+
+        return strtr($str, $persianDigits);
+    }
+
+    public function actionNew_detail($id)
+    {
+        $session = Yii::$app->session;
+        $session->open();
+        if(isset($session['user']))
+        {
+            $model = new \app\models\PcPurchaseDetail();
+            $model->purchase_id = $id;
+
+            return $this->render('new_detail', ['model'=>$model]);
+        }
+        else
+            return $this->redirect(['main/login']);
+    }
+
+    public function actionInsert_detail()
+    {
+        $session = Yii::$app->session;
+        $session->open();
+        if((Yii::$app->request->isPost) && (isset($session['user'])) )
+        {
+            $model = new \app\models\PcPurchaseDetail();
+            if($model->load(Yii::$app->request->post()))
+            {
+                $modifier_id = $session['user']['id'];
+                $modified_at = time();
+
+                if (isset($_FILES['photo_file']) && $_FILES['photo_file']['error'] == UPLOAD_ERR_OK) {
+                    $uploadedFile = $_FILES['photo_file'];
+                    $uniqueFileName = uniqid() . '_' . $uploadedFile['name'];
+                    $filePath = Yii::getAlias('@webroot/uploads/') . $uniqueFileName;
+
+                    if (move_uploaded_file($uploadedFile['tmp_name'], $filePath))
+                        $model->equipment_photo = $uniqueFileName;
+                    else 
+                        $model->equipment_photo = "";
+                }
+
+                //save
+                if($model->save())
+                {
+                    $pmodel = \app\models\PcPurchases::find()->where(['id'=>$model["purchase_id"]])->one();
+                    $pmodel->modifier_id = $modifier_id;
+                    $pmodel->modified_at = $modified_at;
+                    $pmodel->update(false);
+
+                    Yii::$app->session->setFlash('success','عملیات با موفقیت انجام شد.');
+                }
+                else
+                    Yii::$app->session->setFlash('error','ورود اطلاعات با خطا مواجه شد.');
+            }
+            else
+                Yii::$app->session->setFlash('error','ورود اطلاعات با خطا مواجه شد.');
+        }
+
+        return $this->redirect(['purchase/view', 'id'=>$model["purchase_id"]]);
+    }
+
+    public function actionDelete_detail($id)
+    {
+        $session = Yii::$app->session;
+        $session->open();
+        $purchase_id = -1;
+        if(isset($session['user']))
+        {
+            $model = \app\models\PcPurchaseDetail::find()->where(['id'=>$id])->one();
+            if($model)
+            {
+                $purchase_id = $model["purchase_id"];
+
+                $photo = $model->equipment_photo;
+                if($photo != "")
+                {
+                    $existingFilePath = Yii::getAlias('@webroot/uploads/') . $photo;
+                    if (file_exists($existingFilePath)) {
+                        unlink($existingFilePath);
+                    }
+                }
+
+                $model->delete();
+                Yii::$app->session->setFlash('success','عملیات با موفقیت انجام شد.');
+            }
+            else
+                Yii::$app->session->setFlash('error','ورود اطلاعات با خطا مواجه شد.');
+        }
+        else
+            return $this->redirect(['main/login']);
+        
+        return $this->redirect(['purchase/view', 'id'=>$purchase_id]);
+    }
+
+    public function actionUpdate_detail_page($id)
+    {
+        $session = Yii::$app->session;
+        $session->open();
+        if(isset($session['user']))
+        {
+            $model = \app\models\PcPurchaseDetail::find()->where(['id'=>$id])->one();
+            if($model)
+            {
+                return $this->render('update_detail', ['model'=>$model]);
+            }
+            else
+                Yii::$app->session->setFlash('error','ورود اطلاعات با خطا مواجه شد.');
+        }
+        else
+            return $this->redirect(['main/login']);
+        
+        return $this->redirect(['purchase/view', 'id'=>$model["purchase_id"]]);
+    }
+
+    public function actionUpdate_detail()
+    {
+        $session = Yii::$app->session;
+        $session->open();
+        if((Yii::$app->request->isPost) && (isset($session['user'])) )
+        {
+            $id = Yii::$app->request->post('PcPurchaseDetail')["id"];
+            $model = \app\models\PcPurchaseDetail::findOne($id);
+            if($model)
+            {
+                if (isset($_FILES['photo_file']) && $_FILES['photo_file']['error'] == UPLOAD_ERR_OK) {
+
+                    if (!empty($model["equipment_photo"])) {
+                        $existingFilePath = Yii::getAlias('@webroot/uploads/') . $model["equipment_photo"];
+                        if (file_exists($existingFilePath)) {
+                            unlink($existingFilePath);
+                        }
+                    }
+
+                    $uploadedFile = $_FILES['photo_file'];
+                    $uniqueFileName = uniqid() . '_' . $uploadedFile['name'];
+                    $filePath = Yii::getAlias('@webroot/uploads/') . $uniqueFileName;
+
+                    if (move_uploaded_file($uploadedFile['tmp_name'], $filePath))
+                        $model->equipment_photo = $uniqueFileName;
+                    else 
+                        $model->equipment_photo = "";
+                }
+
+                $equipment_type = Yii::$app->request->post('PcPurchaseDetail')["equipment_type"];
+                $equipment_brand = Yii::$app->request->post('PcPurchaseDetail')["equipment_brand"];
+                $equipment_model = Yii::$app->request->post('PcPurchaseDetail')["equipment_model"];
+                $quantity = Yii::$app->request->post('PcPurchaseDetail')["quantity"];
+                $provider = Yii::$app->request->post('PcPurchaseDetail')["provider"];
+                $descriptions = Yii::$app->request->post('PcPurchaseDetail')["descriptions"];
+
+                $model["equipment_type"] = $equipment_type;
+                $model["equipment_brand"] = $equipment_brand;
+                $model["equipment_model"] = $equipment_model;
+                $model["quantity"] = $quantity;
+                $model["provider"] = $provider;
+                $model["descriptions"] = $descriptions;
+
+
+                $purchase_id = $model["purchase_id"];
+
+                //update
+                if($model->update(false))
+                {
+                    $pmodel = \app\models\PcPurchases::find()->where(['id'=>$purchase_id])->one();
+                    $pmodel->modifier_id = $session['user']['id'];
+                    $pmodel->modified_at = time();
+                    $pmodel->update(false);
+                    
+                    Yii::$app->session->setFlash('success','عملیات با موفقیت انجام شد.');
+                }
+                else
+                    Yii::$app->session->setFlash('error','ورود اطلاعات با خطا مواجه شد.');
+            }
+            else
+                Yii::$app->session->setFlash('error','ورود اطلاعات با خطا مواجه شد.');
+        }
+
+        return $this->redirect(['purchase/view', 'id'=>$model["purchase_id"]]);
+    }
+
+
 }

@@ -17,7 +17,7 @@ $session = Yii::$app->session;
     </p>
     <div class="topic-cover bg-gradient">
             <img src="<?= Yii::$app->request->baseUrl.'/web/images/cart.png'; ?>" style="width:200px;display:block; margin:5px auto;">
-            <h3 style="text-align: center; color:#fff;direction: rtl;">ثبت خرید تچهیزات</h3>
+            <h3 style="text-align: center; color:#fff;direction: rtl;">ثبت خرید تجهیزات</h3>
     <br />
 
 

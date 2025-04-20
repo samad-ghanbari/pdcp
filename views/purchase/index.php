@@ -121,48 +121,20 @@ if(isset($sessoin['user']))
                                     'format'=>'html',
                                     'value'=>function($data){if(empty($data['created_at'])) return ''; else return \app\components\Jdf::jdate("Y/m/d", $data["created_at"]);}
                                 ],
-                                // [
-                                //     'attribute' =>'modifier',
-                                //     'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
-                                //     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'ویرایش'],
-                                // ],
-                                // [
-                                //     'attribute' =>'modified_at',
-                                //     'filter' => false,
-                                //     'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
-                                //     'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'زمان ویرایش'],
-                                //     'format'=>'html',
-                                //     'value'=>function($data){if(empty($data['modified_at'])) return ''; else return \app\components\Jdf::jdate("Y/m/d", $data["modified_at"]);}
-                                // ],
+
                                 [
                                     'class' => 'yii\grid\ActionColumn',
-                                    'template' => '{project_detail}&nbsp;&nbsp;&nbsp;&nbsp;{update}&nbsp;&nbsp;&nbsp;&nbsp;{delete}',
-                                    'header'=>"عملیات",
+                                    'template' => '{detail}',
+                                    'header'=>"جزئیات",
                                     'headerOptions' => ['class' => 'bg-success text-center text-info', 'style'=>'height:80px; line-height:80px;'],
                                     'buttons' => [
-                                        'project_detail' => function($url, $model, $key) {
+                                        'detail' => function($url, $model, $key) {
                                             return Html::a('<i class="fa fa-info-circle text-info"></i>', $url, ['title' => 'نمایش اطلاعات خرید']);
-                                        },
-                                        'update' => function($url, $model, $key) {
-                                            return Html::a('<i class="fa fa-edit text-success"></i>', $url, ['title' => 'ویرایش ']);
-                                        },
-                                        'delete' => function($url, $model, $key) {
-                                            return Html::a('<i class="fa fa-trash text-danger"></i>', $url, [
-                                                'title' => 'حذف خرید',
-                                                'data-confirm' => 'آیا از حذف این خرید مطمئن هستید؟',
-                                                'data-method' => 'post',
-                                            ]);
                                         },
                                     ],
                                     'urlCreator' => function ($action, $model, $key, $index) {
-                                        if ($action === 'project_detail') {
+                                        if ($action === 'detail') {
                                             return Yii::$app->request->baseUrl . '/purchase/view?id=' . $model->id;
-                                        }
-                                        if ($action === 'update') {
-                                            return Yii::$app->request->baseUrl . '/purchase/update_page?id=' . $model->id;
-                                        }
-                                        if ($action === 'delete') {
-                                            return Yii::$app->request->baseUrl . '/purchase/delete?id=' . $model->id;
                                         }
                                     }
                                 ],
