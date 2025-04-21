@@ -16,7 +16,7 @@ use yii\grid\GridView;
 ?>
 
     <p class="backicon">
-        <a href="<?= 'index'; ?>"><i class="fa fa-chevron-left fa-2x" style="color:white;position: relative;"></i></a>
+        <a href="<?= Yii::$app->request->referrer ?>"><i class="fa fa-chevron-left fa-2x" style="color:white;position: relative;"></i></a>
     </p>
 
     <div class="topic-cover bg-gradient">
@@ -120,126 +120,130 @@ use yii\grid\GridView;
             <br style="clear: both;" />
             <br />
 
-            <?php
-            if (empty($model["purchase_code"])) {
-                echo Html::a('<i class="fa fa-plus text-white" ></i><span class="dis-text"> ثبت جزئیات خرید </span>', ['new_detail', 'id'=>$model['id']], ['style'=>'display:block; margin-left:0; width:150px; height: 40px','class'=>'btn btn-success']);
-            }
-                echo GridView::widget([
-                    'tableOptions'=>['id'=>"perchase-Table", 'class'=>'table table-striped table-bordered table-hover text-center '],
-                    //'headerRowOptions'=>['class'=>'bg-info text-center'],
-                    'rowOptions' =>function ($model_detail, $key, $index, $grid) {return ['id'=>'row'.$model_detail['id'], 'pid'=>$model_detail["id"], 'class'=>'table_row', 'style'=>"cursor:pointer", 'onclick'=>'activateRow(this.getAttribute("id"));'];},
-                    'dataProvider' => $dataProvider,
-                    'filterModel' => $searchModel,
-                    'filterRowOptions' =>['style'=>"direction:ltr"],
-                    //'summary' => 'نمایش <b>{begin} تا {end}</b> از <b>{totalCount}</b> ',
-                    'summary'=>"",
-                    //        'pager'=>['options'=>['align'=>"center", 'class'=>"pagination"]],
-                    'layout' => "{summary}\n{items}\n<div align='center' >{pager}</div>",
-                    'columns' => [
-                        //id, purchase_id, equipment_type, equipment_brand, equipment_model, quantity, provider, equipment_photo, descriptions
-                        //0
-                        [
-                            'attribute' =>'id',
-                            'visible'=>0,
-                        ],
-                        //1
-                        [
-                            'attribute' =>'equipment_type',
-                            'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
-                            'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'نوع تجهیز'],
-                        ],
-                        [
-                            'attribute' =>'equipment_brand',
-                            'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
-                            'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'برند تجهیز'],
-                        ],
-                        [
-                            'attribute' =>'equipment_model',
-                            'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
-                            'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'مدل تجهیز'],
-                        ],
-                        [
-                            'attribute' =>'quantity',
-                            'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;  width:50px;'],
-                            'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'تعداد'],
-                        ],
-                        [
-                            'attribute' =>'provider',
-                            'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
-                            'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'تامین کننده'],
-                        ],
-                        //3
-                        [
-                            'attribute' =>'equipment_photo',
-                            'filter' => false,
-                            'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;  width:100px;'],
-                            'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'تصویر تجهیز'],
-                            'format'=>'html',
-                            'value'=>function($data){
-                                if(empty($data['equipment_photo'])) {
-                                    return "<i class='fa fa-times text-danger'></i>";
-                                } else {
-                                    $fileUrl = Yii::$app->request->baseUrl . '/uploads/' . $data['equipment_photo'];
-                                    return Html::a('<i class="fa fa-download text-success"></i>', $fileUrl, ['title' => 'دانلود فایل', 'target' => '_blank']);
-                                }
-                            }
-                        ],
-                        //۴
-                        [
-                            'attribute' =>'descriptions',
-                            'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
-                            'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'کد خرید'],
-                        ],
+            <div id="gwcontainer" style=" background-color:#fff; direction:rtl; height: 100%; font-size: 14px;">
 
-                        [
-                            'class' => 'yii\grid\ActionColumn',
-                            'template' => '{project_detail}&nbsp;&nbsp;&nbsp;&nbsp;{update}&nbsp;&nbsp;&nbsp;&nbsp;{delete}',
-                            'header' => "عملیات",
-                            'visible' => empty($model["purchase_code"]),
-                            'headerOptions' => ['class' => 'bg-success text-center text-info', 'style'=>'height:80px; line-height:80px;'],
-                            'buttons' => [
-                                
-                                'update' => function($url, $model, $key) {
-                                    return Html::a('<i class="fa fa-edit text-success"></i>', $url, ['title' => 'ویرایش ']);
-                                },
-                                'delete' => function($url, $model, $key) {
-                                    return Html::a('<i class="fa fa-trash text-danger"></i>', $url, [
-                                        'title' => 'حذف',
-                                        'data-confirm' => 'آیا از حذف این گزینه مطمئن هستید؟',
-                                        'data-method' => 'post',
-                                    ]);
-                                },
-                            ],
-                            'urlCreator' => function ($action, $model, $key, $index) {
-                                
-                                if ($action === 'update') {
-                                    return Yii::$app->request->baseUrl . '/purchase/update_detail_page?id=' . $model->id;
-                                }
-                                if ($action === 'delete') {
-                                    return Yii::$app->request->baseUrl . '/purchase/delete_detail?id=' . $model->id;
-                                }
-                            }
-                        ],
-                    ],
-                ]);
-
+                <?php
                 if (empty($model["purchase_code"])) {
-                    echo Html::a('<i class="fa fa-check text-white" ></i><span class="dis-text" style="display: inline-block; vertical-align: middle;"> ثبت نهایی </span>', ['done', 'id' => $model['id']], ['style'=>'display:block; float:left; width:100px; height: 40px; text-align: center; line-height: 40px;','class'=>'btn btn-primary']);
+                    echo Html::a('<i class="fa fa-plus text-white" ></i><span > ثبت جزئیات خرید </span>', ['new_detail', 'id'=>$model['id']], ['style'=>'display:block; margin-left:0; padding:0; line-height: 40px; width:150px; height: 40px; border-radius:0;','class'=>'btn btn-success']);
                 }
-            ?>
+                    echo GridView::widget([
+                        'tableOptions'=>['id'=>"perchase-Table", 'class'=>'table table-striped table-bordered table-hover text-center '],
+                        //'headerRowOptions'=>['class'=>'bg-info text-center'],
+                        'rowOptions' =>function ($model_detail, $key, $index, $grid) {return ['id'=>'row'.$model_detail['id'], 'pid'=>$model_detail["id"], 'class'=>'table_row', 'style'=>"cursor:pointer", 'onclick'=>'activateRow(this.getAttribute("id"));'];},
+                        'dataProvider' => $dataProvider,
+                        'filterModel' => $searchModel,
+                        'filterRowOptions' =>['style'=>"direction:ltr"],
+                        //'summary' => 'نمایش <b>{begin} تا {end}</b> از <b>{totalCount}</b> ',
+                        'summary'=>"",
+                        //        'pager'=>['options'=>['align'=>"center", 'class'=>"pagination"]],
+                        'layout' => "{summary}\n{items}\n<div align='center' >{pager}</div>",
+                        'columns' => [
+                            //id, purchase_id, equipment_type, equipment_brand, equipment_model, quantity, provider, equipment_photo, descriptions
+                            //0
+                            [
+                                'attribute' =>'id',
+                                'visible'=>0,
+                            ],
+                            //1
+                            [
+                                'attribute' =>'equipment_type',
+                                'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'نوع تجهیز'],
+                            ],
+                            [
+                                'attribute' =>'equipment_brand',
+                                'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'برند تجهیز'],
+                            ],
+                            [
+                                'attribute' =>'equipment_model',
+                                'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'مدل تجهیز'],
+                            ],
+                            [
+                                'attribute' =>'quantity',
+                                'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;  width:50px;'],
+                                'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'تعداد'],
+                            ],
+                            [
+                                'attribute' =>'provider',
+                                'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'تامین کننده'],
+                            ],
+                            //3
+                            [
+                                'attribute' =>'equipment_photo',
+                                'filter' => false,
+                                'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;  width:100px;'],
+                                'contentOptions' => ['class' => 'text-center', 'style'=>"vertical-align: middle;min-width:80px;", 'title'=>'تصویر تجهیز'],
+                                'format'=>'html',
+                                'value'=>function($data){
+                                    if(empty($data['equipment_photo'])) {
+                                        return "<i class='fa fa-times text-danger'></i>";
+                                    } else {
+                                        $fileUrl = Yii::$app->request->baseUrl . '/uploads/' . $data['equipment_photo'];
+                                        return Html::a('<i class="fa fa-download text-success"></i>', $fileUrl, ['title' => 'دانلود فایل', 'target' => '_blank']);
+                                    }
+                                }
+                            ],
+                            //۴
+                            [
+                                'attribute' =>'descriptions',
+                                'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'کد خرید'],
+                            ],
 
+                            [
+                                'class' => 'yii\grid\ActionColumn',
+                                'template' => '{project_detail}&nbsp;&nbsp;&nbsp;&nbsp;{update}&nbsp;&nbsp;&nbsp;&nbsp;{delete}',
+                                'header' => "عملیات",
+                                'visible' => empty($model["purchase_code"]),
+                                'headerOptions' => ['class' => 'bg-success text-center text-info', 'style'=>'height:80px; line-height:80px;'],
+                                'buttons' => [
+                                    
+                                    'update' => function($url, $model, $key) {
+                                        return Html::a('<i class="fa fa-edit text-success"></i>', $url, ['title' => 'ویرایش ']);
+                                    },
+                                    'delete' => function($url, $model, $key) {
+                                        return Html::a('<i class="fa fa-trash text-danger"></i>', $url, [
+                                            'title' => 'حذف',
+                                            'data-confirm' => 'آیا از حذف این گزینه مطمئن هستید؟',
+                                            'data-method' => 'post',
+                                        ]);
+                                    },
+                                ],
+                                'urlCreator' => function ($action, $model, $key, $index) {
+                                    
+                                    if ($action === 'update') {
+                                        return Yii::$app->request->baseUrl . '/purchase/update_detail_page?id=' . $model->id;
+                                    }
+                                    if ($action === 'delete') {
+                                        return Yii::$app->request->baseUrl . '/purchase/delete_detail?id=' . $model->id;
+                                    }
+                                }
+                            ],
+                        ],
+                    ]);
+
+                    if (empty($model["purchase_code"])) {
+                        echo Html::a('<i class="fa fa-check text-white" ></i><span class="dis-text" style="display: inline-block; vertical-align: middle;"> ثبت نهایی </span>', ['done', 'id' => $model['id']], ['style'=>'display:block; float:left; width:100px; height: 40px; text-align: center; line-height: 40px;padding:0; ','class'=>'btn btn-primary']);
+                    }
+                ?>
+            </div>
             <br /><br />
             <hr style="border: 1px solid #ccc; width: 80%; margin: auto;" />
             <br /><br />
             <?php
             if (empty($model["purchase_code"])) {
-                echo Html::a('<i class="fa fa-times text-white" ></i><span class="dis-text" style="display: inline-block; vertical-align: middle;"> حذف خرید </span>', ['delete', 'id' => $model['id']], [
-                    'style' => 'display:block; margin: 0 auto; width:100px; height: 40px; text-align: center; line-height: 40px;',
+                echo Html::a('<i class="fa fa-times text-white" ></i><span > حذف خرید </span>', ['delete', 'id' => $model['id']], [
+                    'style' => 'display:block; margin: 0 auto; width:100px; height: 40px; text-align: center; line-height: 40px; padding:0;',
                     'class' => 'btn btn-danger',
                     'data-confirm' => 'آیا از حذف این خرید مطمئن هستید؟',
                 ]);
             }
             ?>
+
+            
 
     </div>
 

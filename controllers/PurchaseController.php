@@ -169,7 +169,15 @@ class PurchaseController extends Controller
             $model->done = false;
             $model->purchase_code = "";
 
-            return $this->render('new', ['model'=>$model, 'areas'=>$areas, 'creator'=>$creator, "created_at"=>$created_at]);
+            $titles0 = \app\models\PcPurchaseTitle::find()->orderBy(['id'=>SORT_ASC])->asArray()->all();
+            $titles = [];
+            foreach ($titles0 as $title) {
+                $titles[$title["title"]] = $title["title"];
+            }
+
+            
+
+            return $this->render('new', ['model'=>$model, 'areas'=>$areas, 'creator'=>$creator, "created_at"=>$created_at, 'titles'=>$titles]);
 
         }
 
@@ -229,7 +237,6 @@ class PurchaseController extends Controller
                         else 
                             $model->factor = "";
                     }
-
                     //save
                     if($model->save())
                     {
@@ -256,6 +263,8 @@ class PurchaseController extends Controller
             {
                 $created_at = $this->getDate($model["created_at"]);
                 $modified_at = $this->getDate($model["modified_at"]);
+                if(empty($model["modified_at"]))
+                    $modified_at = "";
 
                 $searchModel = new \app\models\PcPurchaseDetailSearch();
                 $dataProvider = [];
@@ -354,6 +363,8 @@ class PurchaseController extends Controller
     
                         $created_at = $this->getDate($model["created_at"]);
                         $modified_at = $this->getDate($model["modified_at"]);
+                        if($model["modified_at"])
+                            $modified_at = "";
                         
                         $action_role = $session["user"]["action_role"];
 
@@ -398,7 +409,13 @@ class PurchaseController extends Controller
                                     }
                             }
 
-                            return $this->render('update', ['model'=>$model, 'areas'=>$areas, 'creator'=>$creator, "created_at"=>$created_at, $modifier=>$modifier, "modified_at"=>$modified_at]);
+                            $titles0 = \app\models\PcPurchaseTitle::find()->orderBy(['id'=>SORT_ASC])->asArray()->all();
+                            $titles = [];
+                            foreach ($titles0 as $title) {
+                                $titles[$title["title"]] = $title["title"];
+                            }
+
+                            return $this->render('update', ['model'=>$model, 'areas'=>$areas, 'creator'=>$creator, "created_at"=>$created_at, $modifier=>$modifier, "modified_at"=>$modified_at, 'titles'=>$titles]);
                     }
                 }
                 else
@@ -566,7 +583,19 @@ class PurchaseController extends Controller
             $model = new \app\models\PcPurchaseDetail();
             $model->purchase_id = $id;
 
-            return $this->render('new_detail', ['model'=>$model]);
+            $vendors0 = \app\models\PcPurchaseVendor::find()->orderBy(['id'=>SORT_ASC])->asArray()->all();
+            $vendors = [];
+            foreach ($vendors0 as $vendor) {
+                $vendors[$vendor["vendor"]] = $vendor["vendor"];
+            }
+
+            $types0 = \app\models\PcPurchaseType::find()->orderBy(['id'=>SORT_ASC])->asArray()->all();
+            $types = [];
+            foreach ($types0 as $type) {
+                $types[$type["type"]] = $type["type"];
+            }
+
+            return $this->render('new_detail', ['model'=>$model, 'vendors'=>$vendors, 'types'=>$types]);
         }
         else
             return $this->redirect(['main/login']);
@@ -657,7 +686,19 @@ class PurchaseController extends Controller
             $model = \app\models\PcPurchaseDetail::find()->where(['id'=>$id])->one();
             if($model)
             {
-                return $this->render('update_detail', ['model'=>$model]);
+                $vendors0 = \app\models\PcPurchaseVendor::find()->orderBy(['id'=>SORT_ASC])->asArray()->all();
+                $vendors = [];
+                foreach ($vendors0 as $vendor) {
+                    $vendors[$vendor["vendor"]] = $vendor["vendor"];
+                }
+    
+                $types0 = \app\models\PcPurchaseType::find()->orderBy(['id'=>SORT_ASC])->asArray()->all();
+                $types = [];
+                foreach ($types0 as $type) {
+                    $types[$type["type"]] = $type["type"];
+                }
+
+                return $this->render('update_detail', ['model'=>$model, 'vendors'=>$vendors, 'types'=>$types]);
             }
             else
                 Yii::$app->session->setFlash('error','ورود اطلاعات با خطا مواجه شد.');

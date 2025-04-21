@@ -37,7 +37,11 @@ if(isset($sessoin['user']))
                     }
                     else
                     {
-                        echo Html::a('<i class="fa fa-plus text-white" ></i><span class="dis-text"> ثبت خرید جدید </span>', ['new'], ['style'=>'display:block; margin-left:0; width:150px; height: 40px','class'=>'btn btn-success']);
+                        echo Html::a('<i class="fa fa-plus text-white" ></i><span class="dis-text"> ثبت خرید جدید </span>', ['new'], ['style'=>'float: right; margin-left:0; width:150px; height: 40px; border-radius:0;','class'=>'btn btn-success']);
+
+                        echo Html::a('<i class="fa fa-excel text-white" ></i><span class="dis-text"> خروجی اکسل </span>', [''], ['style'=>'float:left; margin-left:0; width:150px; height: 40px; border-radius:0;','class'=>'btn btn-success']);
+
+                        echo '<br style="clear:both;" />';
 
                         echo GridView::widget([
                             'tableOptions'=>['id'=>"perchase-Table", 'class'=>'table table-striped table-bordered table-hover text-center '],
