@@ -12,6 +12,9 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use yii\helpers\FileHelper;
 
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
+
 
 class PurchaseController extends Controller
 {
@@ -774,6 +777,175 @@ class PurchaseController extends Controller
 
         return $this->redirect(['purchase/view', 'id'=>$model["purchase_id"]]);
     }
+
+    public function actionPurchase_excel()
+    {
+        $session = Yii::$app->session;
+        $session->open();
+
+        if(isset($session['user']))
+        {
+            $filter = Yii::$app->request->get('PcViewPurchasesSearch');
+            $area  = $filter["area"];
+            $title = $filter["title"];
+            $creator = $filter["creator"];
+            $code = $filter["purchase_code"];
+
+            $query = \app\models\PcViewPurchases::find();
+
+            if (!empty($area)) {
+                $query->andWhere(['area' => (int)$area]);
+            }
+
+            if (!empty($title)) {
+                $query->andWhere(['like', 'title', $title]);
+            }
+
+            if (!empty($creator)) {
+                $query->andWhere(['like', 'creator', $creator]);
+            }
+
+            if (!empty($code)) {
+                $query->andWhere(['like', 'purchase_code', $code]);
+            }
+
+            $dataArray = $query->orderBy(['created_at' => SORT_DESC])->asArray()->all();
+
+            $page_header = "گزارش خریدها";
+            $table_header = ["منطقه", "عنوان",  "ثبت کننده", "تاریخ ثبت", "کد خرید"];
+            $data = []; // [{}, {}, ]   {area, title, creator, ts, purchase_code, details:[]}   details[]  type, brand, model, quantity, provider, desc
+            $purchase_id = -1;
+            $obj = [];
+            
+            foreach ($dataArray as $record) {
+
+                $purchase_id = $record["id"];
+                $details = \app\models\PcPurchaseDetail::find()->where(['purchase_id'=>$purchase_id])->asArray()->all();
+                
+                $obj = [];
+
+                $obj['area'] = $record["area"];
+                $obj['title'] = $record["title"];
+                $obj['created_at'] = \app\components\Jdf::jdate('Y/m/d', $record["created_at"]);
+                $obj['creator'] = $record["creator"];
+                $obj['purchase_code'] = $record["purchase_code"];
+                $obj['details']= [];
+                foreach ($details as $detail) {
+                    $obj["details"][] = [
+                        "equipment_type" => $detail["equipment_type"],
+                        "equipment_brand" => $detail["equipment_brand"],
+                        "equipment_model" => $detail["equipment_model"],
+                        "quantity" => $detail["quantity"],
+                        "provider" => $detail["provider"],
+                        "descriptions" => $detail["descriptions"],
+                    ];
+                }
+
+                $data[] = $obj;
+            }
+
+
+            $this->exportExcel($page_header, $filter, $table_header, $data);
+
+            //return $this->redirect(['purchase/index', 'PcViewPurchasesSearch' => $filter]);
+        }
+        else
+            return $this->redirect(['purchase/index']);
+    }
+
+
+    public function exportExcel($page_header, $filter, $table_header, $data)
+    {
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set page header
+        $sheet->setCellValue('A1', $page_header);
+        $sheet->mergeCells('A1:' . chr(64 + count($table_header)) . '1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        // Set filter information
+        $row = 3;
+        foreach ($filter as $key => $value) {
+            $sheet->setCellValue('A' . $row, $key);
+            $sheet->setCellValue('B' . $row, $value);
+            $row++;
+        }
+
+
+        // Fill data
+        $row++;
+        foreach ($data as $record) {
+
+            $col = 'A';
+            foreach ($table_header as $header) {
+                $sheet->setCellValue($col . $row, $header);
+                $sheet->getStyle($col . $row)->getFont()->setBold(true);
+                $sheet->getStyle($col . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $col++;
+            }
+
+            $col = 'A';
+            $sheet->setCellValue($col . $row, $record["area"]);
+            $col++;
+            $sheet->setCellValue($col . $row, $record["title"]);
+            $col++;
+            $sheet->setCellValue($col . $row, $record["creator"]);
+            $col++;
+            $sheet->setCellValue($col . $row, $record["created_at"]);
+            $col++;
+            $sheet->setCellValue($col . $row, $record["purchase_code"]);
+            
+            $row++;
+
+            // details
+            if (isset($record["details"]) && is_array($record["details"])) {
+                $sheet->setCellValue('A' . $row, "جزئیات");
+                $sheet->mergeCells('A' . $row . ':' . chr(64 + 6) . $row);
+                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->setCellValue('A' . ($row + 1), "نوع تجهیزات");
+                $sheet->setCellValue('B' . ($row + 1), "برند تجهیزات");
+                $sheet->setCellValue('C' . ($row + 1), "مدل تجهیزات");
+                $sheet->setCellValue('D' . ($row + 1), "تعداد");
+                $sheet->setCellValue('E' . ($row + 1), "تامین کننده");
+                $sheet->setCellValue('F' . ($row + 1), "توضیحات");
+                $sheet->getStyle('A' . ($row + 1).':F' . ($row + 1))->getFont()->setBold(true);
+                $sheet->getStyle('A' . ($row + 1).':F' . ($row + 1))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('A' . ($row + 1).':F' . ($row + 1))->getAlignment()->setWrapText(true);
+                $sheet->getStyle('A' . ($row + 1).':F' . ($row + 1))->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                $row++;
+                
+                foreach ($record["details"] as $detail) {
+                    $col = 'A';
+                    $sheet->setCellValue('A' . ($row + 1), $detail["equipment_type"]);
+                    $sheet->setCellValue('B' . ($row + 1), $detail["equipment_brand"]);
+                    $sheet->setCellValue('C' . ($row + 1), $detail["equipment_model"]);
+                    $sheet->setCellValue('D' . ($row + 1), $detail["quantity"]);
+                    $sheet->setCellValue('E' . ($row + 1), $detail["provider"]);
+                    $sheet->setCellValue('F' . ($row + 1), $detail["descriptions"]);
+                    $row++;
+                }
+            }
+
+            $row++;
+        }
+
+        // Save to file
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+
+        // Output directly to the browser without saving on the server
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename=district_purchase.xlsx');
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
+        exit;
+    }
+
+
 
 
 }

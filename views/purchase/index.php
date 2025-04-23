@@ -37,9 +37,9 @@ if(isset($sessoin['user']))
                     }
                     else
                     {
-                        echo Html::a('<i class="fa fa-plus text-white" ></i><span class="dis-text"> ثبت خرید جدید </span>', ['new'], ['style'=>'float: right; margin-left:0; width:150px; height: 40px; border-radius:0;','class'=>'btn btn-success']);
-
-                        echo Html::a('<i class="fa fa-excel text-white" ></i><span class="dis-text"> خروجی اکسل </span>', [''], ['style'=>'float:left; margin-left:0; width:150px; height: 40px; border-radius:0;','class'=>'btn btn-success']);
+                        echo Html::a('<i class="fa fa-plus text-white" ></i> ثبت خرید جدید ', ['new'], ['style'=>'float: right; margin-left:0; width:150px; height: 40px; line-height: 40px; padding: 0; border-radius:0;','class'=>'btn btn-success']);
+                    
+                        echo Html::a('<i class="fa fa-file-excel" style="margin-right: 5px;"></i> خروجی اکسل ', ['purchase_excel',  'PcViewPurchasesSearch' => Yii::$app->request->get('PcViewPurchasesSearch')], ['style'=>'float:left; margin-left:0; width:150px; height: 40px; line-height: 40px; padding: 0; border-radius:0;','class'=>'btn btn-success']);
 
                         echo '<br style="clear:both;" />';
 
