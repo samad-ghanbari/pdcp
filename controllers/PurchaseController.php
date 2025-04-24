@@ -786,10 +786,18 @@ class PurchaseController extends Controller
         if(isset($session['user']))
         {
             $filter = Yii::$app->request->get('PcViewPurchasesSearch');
-            $area  = $filter["area"];
-            $title = $filter["title"];
-            $creator = $filter["creator"];
-            $code = $filter["purchase_code"];
+            $area = null;
+            $title = null;
+            $creator = null;
+            $code = null;
+            if($filter)
+            {
+                $area  = $filter["area"];
+                $title = $filter["title"];
+                $creator = $filter["creator"];
+                $code = $filter["purchase_code"];
+            }
+            
 
             $query = \app\models\PcViewPurchases::find();
 
@@ -867,6 +875,7 @@ class PurchaseController extends Controller
 
         // Set filter information
         $row = 3;
+        if($filter)
         foreach ($filter as $key => $value) {
             $sheet->setCellValue('A' . $row, $key);
             $sheet->setCellValue('B' . $row, $value);
@@ -875,9 +884,10 @@ class PurchaseController extends Controller
 
 
         // Fill data
-        $row++;
+        
         foreach ($data as $record) {
 
+            $row++;
             $col = 'A';
             foreach ($table_header as $header) {
                 $sheet->setCellValue($col . $row, $header);
@@ -885,6 +895,8 @@ class PurchaseController extends Controller
                 $sheet->getStyle($col . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
                 $col++;
             }
+
+            $row++;
 
             $col = 'A';
             $sheet->setCellValue($col . $row, $record["area"]);
