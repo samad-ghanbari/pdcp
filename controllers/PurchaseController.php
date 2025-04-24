@@ -820,10 +820,11 @@ class PurchaseController extends Controller
             $dataArray = $query->orderBy(['created_at' => SORT_DESC])->asArray()->all();
 
             $page_header = "گزارش خریدها";
-            $table_header = ["منطقه", "عنوان",  "ثبت کننده", "تاریخ ثبت", "کد خرید"];
+            $table_header = ["ردیف", "منطقه", "عنوان",  "ثبت کننده", "تاریخ ثبت", "کد خرید"];
             $data = []; // [{}, {}, ]   {area, title, creator, ts, purchase_code, details:[]}   details[]  type, brand, model, quantity, provider, desc
             $purchase_id = -1;
             $obj = [];
+            $rowNumber = 0;
             
             foreach ($dataArray as $record) {
 
@@ -831,7 +832,9 @@ class PurchaseController extends Controller
                 $details = \app\models\PcPurchaseDetail::find()->where(['purchase_id'=>$purchase_id])->asArray()->all();
                 
                 $obj = [];
+                $rowNumber++;
 
+                $obj["row"] = $rowNumber;
                 $obj['area'] = $record["area"];
                 $obj['title'] = $record["title"];
                 $obj['created_at'] = \app\components\Jdf::jdate('Y/m/d', $record["created_at"]);
@@ -872,15 +875,42 @@ class PurchaseController extends Controller
         $sheet->mergeCells('A1:' . chr(64 + count($table_header)) . '1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+        $sheet->getRowDimension(1)->setRowHeight(30);
+        $sheet->getStyle('A1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFFF00'); // Yellow background
+        $sheet->getStyle('A1')->getFont()->setName('B Mitra');
 
         // Set filter information
         $row = 3;
         if($filter)
         foreach ($filter as $key => $value) {
-            $sheet->setCellValue('A' . $row, $key);
-            $sheet->setCellValue('B' . $row, $value);
-            $row++;
+            
+            if($key === "area")
+                $key = "منطقه";
+            if($key === "title")
+                $key = "عنوان";
+            if($key === "creator")
+                $key = "ثبت کننده";
+            if($key === "purchase_code")
+                $key = "کد خرید";
+
+            if(!empty($value))
+            {
+                $sheet->setCellValue('A' . $row, $key);
+                $sheet->setCellValue('B' . $row, $value);
+                $row++;
+            }
+            
         }
+
+        $sheet->getColumnDimension('A')->setWidth(10); // type
+        $sheet->getColumnDimension('B')->setWidth(10); // brand
+        $sheet->getColumnDimension('C')->setWidth(10); // model
+        $sheet->getColumnDimension('D')->setWidth(10); // quantity
+        $sheet->getColumnDimension('E')->setWidth(15); // provider
+        $sheet->getColumnDimension('F')->setWidth(25); // desc
+
+        
 
 
         // Fill data
@@ -890,59 +920,75 @@ class PurchaseController extends Controller
             $row++;
             $col = 'A';
             foreach ($table_header as $header) {
+                $sheet->getRowDimension($row)->setRowHeight(20);
+
                 $sheet->setCellValue($col . $row, $header);
                 $sheet->getStyle($col . $row)->getFont()->setBold(true);
                 $sheet->getStyle($col . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle($col . $row)->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $sheet->getStyle($col . $row)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('DDDDFF'); // Yellow background
+                $sheet->getStyle($col . $row)->getFont()->setName('B Mitra');
                 $col++;
             }
+            $sheet->getStyle('A' . $row . ':F' . $row)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+            $sheet->getRowDimension($row)->setRowHeight(25); 
+
 
             $row++;
 
-            $col = 'A';
-            $sheet->setCellValue($col . $row, $record["area"]);
-            $col++;
-            $sheet->setCellValue($col . $row, $record["title"]);
-            $col++;
-            $sheet->setCellValue($col . $row, $record["creator"]);
-            $col++;
-            $sheet->setCellValue($col . $row, $record["created_at"]);
-            $col++;
-            $sheet->setCellValue($col . $row, $record["purchase_code"]);
+            $sheet->setCellValue('A' . $row, $record["row"]);
+            $sheet->setCellValue('B' . $row, $record["area"]);
+            $sheet->setCellValue('C' . $row, $record["title"]);
+            $sheet->setCellValue('D' . $row, $record["creator"]);
+            $sheet->setCellValue('E' . $row, $record["created_at"]);
+            $sheet->setCellValue('F'. $row, $record["purchase_code"]);
             
             $row++;
 
             // details
             if (isset($record["details"]) && is_array($record["details"])) {
                 $sheet->setCellValue('A' . $row, "جزئیات");
-                $sheet->mergeCells('A' . $row . ':' . chr(64 + 6) . $row);
-                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-                $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $sheet->setCellValue('A' . ($row + 1), "نوع تجهیزات");
-                $sheet->setCellValue('B' . ($row + 1), "برند تجهیزات");
-                $sheet->setCellValue('C' . ($row + 1), "مدل تجهیزات");
-                $sheet->setCellValue('D' . ($row + 1), "تعداد");
-                $sheet->setCellValue('E' . ($row + 1), "تامین کننده");
-                $sheet->setCellValue('F' . ($row + 1), "توضیحات");
-                $sheet->getStyle('A' . ($row + 1).':F' . ($row + 1))->getFont()->setBold(true);
-                $sheet->getStyle('A' . ($row + 1).':F' . ($row + 1))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle('A' . ($row + 1).':F' . ($row + 1))->getAlignment()->setWrapText(true);
-                $sheet->getStyle('A' . ($row + 1).':F' . ($row + 1))->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-
+                $sheet->mergeCells('A'.$row . ':' . chr(64 + 6) . $row);
+                $sheet->getStyle('A'.$row)->getFont()->setBold(true);
+                $sheet->getStyle('A'.$row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('A'.$row)->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $sheet->getStyle('A'.$row)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('DDDDEE'); // Yellow background
+                $sheet->getStyle('A'.$row)->getFont()->setName('B Mitra');
+                $sheet->getStyle('A'.$row)->getFont()->setBold(true);
+                
                 $row++;
+                $sheet->setCellValue('A' . ($row ), "نوع تجهیزات");
+                $sheet->setCellValue('B' . ($row ), "برند تجهیزات");
+                $sheet->setCellValue('C' . ($row ), "مدل تجهیزات");
+                $sheet->setCellValue('D' . ($row ), "تعداد");
+                $sheet->setCellValue('E' . ($row ), "تامین کننده");
+                $sheet->setCellValue('F' . ($row ), "توضیحات");
+                $sheet->getStyle('A' . ($row ).':F' . ($row ))->getFont()->setBold(true);
+                $sheet->getStyle('A' . ($row ).':F' . ($row ))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('A' . ($row ).':F' . ($row ))->getAlignment()->setWrapText(true);
+                $sheet->getStyle('A' . ($row ).':F' . ($row ))->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $sheet->getStyle('A' . $row . ':F' . $row)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+
+                $sheet->getStyle('A' . ($row).':F' . ($row))->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('DDDDEE'); // Yellow background
+                $sheet->getStyle('A' . ($row).':F' . ($row))->getFont()->setName('B Mitra');
+                $sheet->getStyle('A' . ($row).':F' . ($row))->getFont()->setBold(true);
+
                 
                 foreach ($record["details"] as $detail) {
-                    $col = 'A';
-                    $sheet->setCellValue('A' . ($row + 1), $detail["equipment_type"]);
-                    $sheet->setCellValue('B' . ($row + 1), $detail["equipment_brand"]);
-                    $sheet->setCellValue('C' . ($row + 1), $detail["equipment_model"]);
-                    $sheet->setCellValue('D' . ($row + 1), $detail["quantity"]);
-                    $sheet->setCellValue('E' . ($row + 1), $detail["provider"]);
-                    $sheet->setCellValue('F' . ($row + 1), $detail["descriptions"]);
                     $row++;
+                    $col = 'A';
+                    $sheet->setCellValue('A' . ($row ), $detail["equipment_type"]);
+                    $sheet->setCellValue('B' . ($row ), $detail["equipment_brand"]);
+                    $sheet->setCellValue('C' . ($row ), $detail["equipment_model"]);
+                    $sheet->setCellValue('D' . ($row ), $detail["quantity"]);
+                    $sheet->setCellValue('E' . ($row ), $detail["provider"]);
+                    $sheet->setCellValue('F' . ($row ), $detail["descriptions"]);
                 }
             }
 
             $row++;
+            $sheet->mergeCells('A' . $row . ':' . chr(64 + 6) . $row);
+
         }
 
         // Save to file
