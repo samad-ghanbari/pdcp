@@ -61,7 +61,7 @@ class PcViewPurchases extends \yii\db\ActiveRecord
             'id' => 'ID',
             'title' => 'عنوان خرید',
             'area' => 'منطقه',
-            'lom' => 'برآورد خرید',
+            'lom' => 'لیست تجهیزات',
             'factor' => 'فاکتور خرید',
             'creator_id' => 'Creator ID',
             'creator' => 'ثبت کننده',

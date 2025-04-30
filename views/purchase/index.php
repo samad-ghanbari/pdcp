@@ -30,16 +30,18 @@ if(isset($sessoin['user']))
                 <div id="gwcontainer" style="overflow:auto; background-color:#fff; direction:rtl; height: 100%; font-size: 14px;">
 
                     <?php
+                    
+                    echo Html::a('<i class="fa fa-plus text-white" ></i> ثبت خرید جدید ', ['new'], ['style'=>'display: block; margin: 0 auto; font-weight: bold; width:200px; height: 60px; line-height: 60px; padding: 0; border-radius:0; text-align: center; background-color: #c71585; color: white;','class'=>'btn']);
+
                     $url = Yii::$app->request->baseUrl.'/project/index?id=';
-                    if(empty($searchModel))
+                    if(empty($dataProvider->getModels()))
                     {
-                        echo "<h3 style='color:#721c24; text-align: center; direction:rtl;'>خریدی ثبت نشده است.</h3>";
+                        echo "<h3 style='color:#c71585; text-align: center; direction:rtl;'>خریدی ثبت نشده است.</h3>";
                     }
                     else
                     {
-                        echo Html::a('<i class="fa fa-plus text-white" ></i> ثبت خرید جدید ', ['new'], ['style'=>'float: right; margin-left:0; width:150px; height: 40px; line-height: 40px; padding: 0; border-radius:0;','class'=>'btn btn-success']);
                     
-                        echo Html::a('<i class="fa fa-file-excel" style="margin-right: 5px;"></i> خروجی اکسل ', ['purchase_excel',  'PcViewPurchasesSearch' => Yii::$app->request->get('PcViewPurchasesSearch')], ['style'=>'float:left; margin-left:0; width:150px; height: 40px; line-height: 40px; padding: 0; border-radius:0;','class'=>'btn btn-success']);
+                        echo Html::a('<i class="fa fa-file-excel" style="margin-right: 5px;"></i> خروجی اکسل ', ['purchase_excel',  'PcViewPurchasesSearch' => Yii::$app->request->get('PcViewPurchasesSearch')], ['style'=>'float:left; margin-left:0; width:150px; height: 40px; line-height: 40px; padding: 0; border-radius:0;','class'=>'btn btn-primary']);
 
                         echo '<br style="clear:both;" />';
 

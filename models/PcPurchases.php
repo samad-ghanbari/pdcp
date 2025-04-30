@@ -9,8 +9,8 @@ use Yii;
  *
  * @property int $id
  * @property int|null $area
- * @property string|null $lom
- * @property string|null $factor
+ * @property string $lom
+ * @property string $factor
  * @property int $creator_id
  * @property int $created_at
  * @property int|null $modifier_id
@@ -37,7 +37,7 @@ class PcPurchases extends \yii\db\ActiveRecord
         return [
             [['area', 'creator_id', 'created_at', 'modifier_id', 'modified_at'], 'default', 'value' => null],
             [['area', 'creator_id', 'created_at', 'modifier_id', 'modified_at'], 'integer'],
-            [['creator_id', 'created_at', 'title'], 'required'],
+            [['lom', 'factor', 'creator_id', 'created_at', 'title'], 'required'],
             [['done'], 'boolean'],
             [['lom', 'factor', 'purchase_code'], 'string', 'max' => 1024],
             [['title'], 'string', 'max' => 512],
@@ -54,7 +54,7 @@ class PcPurchases extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'area' => 'منطقه',
-            'lom' => 'برآورد خرید',
+            'lom' => 'لیست تجهیزات',
             'factor' => 'فاکتور خرید',
             'creator_id' => 'ثبت کننده',
             'created_at' => 'زمان ثبت',

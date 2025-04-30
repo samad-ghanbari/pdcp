@@ -16,7 +16,7 @@ use yii\grid\GridView;
 ?>
 
     <p class="backicon">
-        <a href="<?= Yii::$app->request->referrer ?>"><i class="fa fa-chevron-left fa-2x" style="color:white;position: relative;"></i></a>
+        <a href="<?= 'index' ?>"><i class="fa fa-chevron-left fa-2x" style="color:white;position: relative;"></i></a>
     </p>
 
     <div class="topic-cover bg-gradient">
@@ -62,7 +62,7 @@ use yii\grid\GridView;
                 </tr>
                 <tr>
                         <td  style="color: black; background-color: orange;text-align: center;">
-                                فایل برآورد خرید
+                                فایل لیست تجهیزات
                         </td>
                         <td>
                             <?php
@@ -124,7 +124,7 @@ use yii\grid\GridView;
 
                 <?php
                 if (empty($model["purchase_code"])) {
-                    echo Html::a('<i class="fa fa-plus text-white" ></i><span > ثبت جزئیات خرید </span>', ['new_detail', 'id'=>$model['id']], ['style'=>'display:block; margin-left:0; padding:0; line-height: 40px; width:150px; height: 40px; border-radius:0;','class'=>'btn btn-success']);
+                    echo Html::a('<i class="fa fa-plus text-white" ></i><span > افزودن مشخصات تجهیزات </span>', ['new_detail', 'id'=>$model['id']], ['style'=>'display:block; margin: auto; padding:0; line-height: 60px; width:200px; height: 60px; border-radius:0; background-color: #c71585; color: white;','class'=>'btn']);
                 }
                     echo GridView::widget([
                         'tableOptions'=>['id'=>"perchase-Table", 'class'=>'table table-striped table-bordered table-hover text-center '],

@@ -869,6 +869,9 @@ class PurchaseController extends Controller
     {
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
+        // Set sheet direction to right-to-left
+        $sheet->setRightToLeft(true);
+
 
         // Set page header
         $sheet->setCellValue('A1', $page_header);
@@ -879,6 +882,7 @@ class PurchaseController extends Controller
         $sheet->getRowDimension(1)->setRowHeight(30);
         $sheet->getStyle('A1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFFF00'); // Yellow background
         $sheet->getStyle('A1')->getFont()->setName('B Mitra');
+        $sheet->getStyle('A1')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
         // Set filter information
         $row = 3;
@@ -903,12 +907,12 @@ class PurchaseController extends Controller
             
         }
 
-        $sheet->getColumnDimension('A')->setWidth(10); // type
-        $sheet->getColumnDimension('B')->setWidth(10); // brand
-        $sheet->getColumnDimension('C')->setWidth(10); // model
-        $sheet->getColumnDimension('D')->setWidth(10); // quantity
-        $sheet->getColumnDimension('E')->setWidth(15); // provider
-        $sheet->getColumnDimension('F')->setWidth(25); // desc
+        $sheet->getColumnDimension('A')->setWidth(15); // type
+        $sheet->getColumnDimension('B')->setWidth(15); // brand
+        $sheet->getColumnDimension('C')->setWidth(20); // model
+        $sheet->getColumnDimension('D')->setWidth(20); // quantity
+        $sheet->getColumnDimension('E')->setWidth(20); // provider
+        $sheet->getColumnDimension('F')->setWidth(50); // desc
 
         
 
@@ -930,31 +934,32 @@ class PurchaseController extends Controller
                 $sheet->getStyle($col . $row)->getFont()->setName('B Mitra');
                 $col++;
             }
-            $sheet->getStyle('A' . $row . ':F' . $row)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+            $sheet->getStyle('A' . $row . ':F' . $row)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
             $sheet->getRowDimension($row)->setRowHeight(25); 
 
 
             $row++;
+            $sheet->getRowDimension($row)->setRowHeight(20);
 
             $sheet->setCellValue('A' . $row, $record["row"]);
             $sheet->setCellValue('B' . $row, $record["area"]);
             $sheet->setCellValue('C' . $row, $record["title"]);
             $sheet->setCellValue('D' . $row, $record["creator"]);
             $sheet->setCellValue('E' . $row, $record["created_at"]);
+            $sheet->getStyle('E' . $row, $record["row"])->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
             $sheet->setCellValue('F'. $row, $record["purchase_code"]);
+
+            $sheet->getStyle('A' . ($row ).':F' . ($row ))->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+            $sheet->getStyle('A' . ($row ).':F' . ($row ))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A' . ($row ).':F' . ($row ))->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('DDDDFF');
+            $sheet->getStyle('A' . $row . ':F' . $row)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+
             
-            $row++;
+
 
             // details
             if (isset($record["details"]) && is_array($record["details"])) {
-                $sheet->setCellValue('A' . $row, "جزئیات");
-                $sheet->mergeCells('A'.$row . ':' . chr(64 + 6) . $row);
-                $sheet->getStyle('A'.$row)->getFont()->setBold(true);
-                $sheet->getStyle('A'.$row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle('A'.$row)->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-                $sheet->getStyle('A'.$row)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('DDDDEE'); // Yellow background
-                $sheet->getStyle('A'.$row)->getFont()->setName('B Mitra');
-                $sheet->getStyle('A'.$row)->getFont()->setBold(true);
+
                 
                 $row++;
                 $sheet->setCellValue('A' . ($row ), "نوع تجهیزات");
@@ -969,13 +974,15 @@ class PurchaseController extends Controller
                 $sheet->getStyle('A' . ($row ).':F' . ($row ))->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
                 $sheet->getStyle('A' . $row . ':F' . $row)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
 
-                $sheet->getStyle('A' . ($row).':F' . ($row))->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('DDDDEE'); // Yellow background
+                $sheet->getStyle('A' . ($row).':F' . ($row))->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('DDDDDD'); // Yellow background
                 $sheet->getStyle('A' . ($row).':F' . ($row))->getFont()->setName('B Mitra');
                 $sheet->getStyle('A' . ($row).':F' . ($row))->getFont()->setBold(true);
 
                 
                 foreach ($record["details"] as $detail) {
+                    
                     $row++;
+                    $sheet->getRowDimension($row)->setRowHeight(20);
                     $col = 'A';
                     $sheet->setCellValue('A' . ($row ), $detail["equipment_type"]);
                     $sheet->setCellValue('B' . ($row ), $detail["equipment_brand"]);
@@ -983,6 +990,10 @@ class PurchaseController extends Controller
                     $sheet->setCellValue('D' . ($row ), $detail["quantity"]);
                     $sheet->setCellValue('E' . ($row ), $detail["provider"]);
                     $sheet->setCellValue('F' . ($row ), $detail["descriptions"]);
+
+                    $sheet->getStyle('A' . ($row ).':F' . ($row ))->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                    $sheet->getStyle('A' . ($row ).':F' . ($row ))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
                 }
             }
 
