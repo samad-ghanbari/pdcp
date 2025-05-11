@@ -226,7 +226,11 @@ use yii\grid\GridView;
                     ]);
 
                     if (empty($model["purchase_code"])) {
-                        echo Html::a('<i class="fa fa-check text-white" ></i><span class="dis-text" style="display: inline-block; vertical-align: middle;"> ثبت نهایی </span>', ['done', 'id' => $model['id']], ['style'=>'display:block; float:left; width:100px; height: 40px; text-align: center; line-height: 40px;padding:0; ','class'=>'btn btn-primary']);
+                        echo Html::a('<i class="fa fa-check text-white" ></i><span class="dis-text" style="display: inline-block; vertical-align: middle;"> ثبت نهایی </span>', ['done', 'id' => $model['id']], [
+                            'style' => 'display:block; float:left; width:100px; height: 40px; text-align: center; line-height: 40px;padding:0;',
+                            'class' => 'btn btn-primary',
+                            'data-confirm' => 'آیا از ثبت نهایی این خرید مطمئن هستید؟',
+                        ]);
                     }
                 ?>
             </div>
