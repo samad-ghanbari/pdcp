@@ -898,7 +898,7 @@ class ProjectsController extends \yii\web\Controller
                 return $this->redirect(['projects/project_users?id='.$project['id']]);
             }
 
-            $users = \app\models\PcUsers::find()->select('id, name, lastname, office')->orderBy('office, lastname, name')->asArray()->all();
+            $users = \app\models\PcUsers::find()->select('id, name, lastname, office')->where(["enabled"=>1])->orderBy('office, lastname, name')->asArray()->all();
             $array=[];
             //['cat1'=>[id1=>"samad"], 'cat2'=>[id2=>"you"]]
             foreach($users as $u)
