@@ -18,6 +18,7 @@ use Yii;
  * @property string|null $purchase_code
  * @property bool $done
  * @property string $title
+ * @property string|null $description
  */
 class PcPurchases extends \yii\db\ActiveRecord
 {
@@ -41,6 +42,7 @@ class PcPurchases extends \yii\db\ActiveRecord
             [['done'], 'boolean'],
             [['lom', 'factor', 'purchase_code'], 'string', 'max' => 1024],
             [['title'], 'string', 'max' => 512],
+            [['description'], 'string', 'max' => 2048],
             [['creator_id'], 'exist', 'skipOnError' => true, 'targetClass' => PcUsers::className(), 'targetAttribute' => ['creator_id' => 'id']],
             [['modifier_id'], 'exist', 'skipOnError' => true, 'targetClass' => PcUsers::className(), 'targetAttribute' => ['modifier_id' => 'id']],
         ];
@@ -63,6 +65,7 @@ class PcPurchases extends \yii\db\ActiveRecord
             'purchase_code' => 'شماره ثبت سامانه',
             'done' => 'ثبت نهایی',
             'title' => 'عنوان خرید',
+            'description' => 'توضیحات',
         ];
     }
 }

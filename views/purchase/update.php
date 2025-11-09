@@ -39,6 +39,8 @@ $session = Yii::$app->session;
     <?= $form->field($model, 'lom', ['labelOptions' => ['style' => 'color:white;'], 'options'=>['style'=>'display:block; width: 100%;']])->fileInput(['name' => 'lom_file']); ?>
     <?= $form->field($model, 'factor', ['labelOptions' => ['style' => 'color:white;'], 'options'=>['style'=>'display:block; width: 100%;', 'class'=>'']])->fileInput(["name" => "factor_file"]); ?>
 
+    <?= $form->field($model, 'description', ['labelOptions'=>['style'=>"color:white;"]])->textarea(["row"=>2, 'option'=>['style'=>"direction:rtl;"]]); ?>
+
     <div class="form-group" style="clear:both;">
         <?= Html::submitButton('تایید', ['class' => 'btn btn-success pull-left', 'style' => 'width: 200px;']) ?>
     </div>

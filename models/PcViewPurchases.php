@@ -20,21 +20,21 @@ use Yii;
  * @property int|null $modified_at
  * @property string|null $purchase_code
  * @property bool|null $done
+ * @property string|null $description
  */
 class PcViewPurchases extends \yii\db\ActiveRecord
 {
-
-    public static function primaryKey()
-    {
-        return ['id'];
-    }
-    
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
         return 'pc.view_purchases';
+    }
+
+    public static function primaryKey()
+    {
+        return ['id'];
     }
 
     /**
@@ -47,8 +47,9 @@ class PcViewPurchases extends \yii\db\ActiveRecord
             [['id', 'area', 'creator_id', 'created_at', 'modifier_id', 'modified_at'], 'integer'],
             [['creator', 'modifier'], 'string'],
             [['done'], 'boolean'],
-            [['title'], 'string', 'max' => 512,  'message'=>'ورود فیلد الزامی است'],
+            [['title'], 'string', 'max' => 512],
             [['lom', 'factor', 'purchase_code'], 'string', 'max' => 1024],
+            [['description'], 'string', 'max' => 2048],
         ];
     }
 
@@ -57,20 +58,21 @@ class PcViewPurchases extends \yii\db\ActiveRecord
      */
     public function attributeLabels()
     {
-        return [            
+        return [
             'id' => 'ID',
             'title' => 'عنوان خرید',
             'area' => 'منطقه',
             'lom' => 'لیست تجهیزات',
             'factor' => 'فاکتور خرید',
-            'creator_id' => 'Creator ID',
+            'creator_id' =>  'Creator ID',
             'creator' => 'ثبت کننده',
             'created_at' => 'تاریخ ثبت',
-            'modifier_id' => 'Modifier ID',
+            'modifier_id' =>  'Modifier ID',
             'modifier' => 'ویرایش کننده',
-            'modified_at' => 'تاریخ ویرایش',
+            'modified_at' =>  'تاریخ ویرایش',
             'purchase_code' => 'شماره ثبت سامانه',
-            'done' => 'ثبت نهایی'
+            'done' =>  'ثبت نهایی',
+            'description' => 'توضیحات',
         ];
     }
 }

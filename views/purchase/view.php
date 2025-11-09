@@ -106,6 +106,16 @@ use yii\grid\GridView;
                         </td>
                 </tr>
 
+                <tr>
+                        <td  style="color: black;  background-color: orange;text-align: center;">
+                            توضیحات 
+                        </td>
+                        <td>
+                        <?= $model["description"]; ?>
+                        </td>
+                </tr>
+
+
                 <tr><td colspan="2" style="color: black; background-color: orange;">
                     <?php if (empty($model['purchase_code'])): ?>
                         <div style="text-align: center;">

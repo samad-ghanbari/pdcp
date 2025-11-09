@@ -100,9 +100,9 @@ class PurchaseController extends Controller
             else
             {
                 if($user['admin'] == 1)
-                    $qry = \app\models\PcViewPurchases::find()->select('id, title, area, lom, factor, creator_id, creator, created_at, modifier_id, modifier, modified_at, purchase_code, done')->orderBy(['created_at'=>SORT_DESC]);
+                    $qry = \app\models\PcViewPurchases::find()->select('id, title, area, lom, factor, creator_id, creator, created_at, modifier_id, modifier, modified_at, purchase_code, description, done')->orderBy(['created_at'=>SORT_DESC]);
                 else
-                    $qry = \app\models\PcViewPurchases::find()->select('id, title, area, lom, factor, creator_id, creator, created_at, modifier_id, modifier, modified_at, purchase_code, done')->where(['area'=>$area])->orderBy(['created_at'=>SORT_DESC]);
+                    $qry = \app\models\PcViewPurchases::find()->select('id, title, area, lom, factor, creator_id, creator, created_at, modifier_id, modifier, modified_at, purchase_code, description, done')->where(['area'=>$area])->orderBy(['created_at'=>SORT_DESC]);
 
                 $dataProvider = new \yii\data\ActiveDataProvider(['query' => $qry]);
             }
@@ -439,6 +439,7 @@ class PurchaseController extends Controller
             $id = Yii::$app->request->post('PcPurchases')["id"];
             $area = Yii::$app->request->post('PcPurchases')["area"];
             $title = Yii::$app->request->post('PcPurchases')["title"];
+            $desc = Yii::$app->request->post('PcPurchases')["description"];
 
             if($area < 1)
             {
@@ -451,6 +452,7 @@ class PurchaseController extends Controller
             $model["title"] = $title;
             $model->modifier_id = $session['user']['id'];
             $model->modified_at = time();
+            $model->description = $desc;
 
 
             if (isset($_FILES['lom_file']) && $_FILES['lom_file']['error'] == UPLOAD_ERR_OK) {

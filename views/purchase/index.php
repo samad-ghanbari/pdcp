@@ -77,7 +77,7 @@ if(isset($sessoin['user']))
                                 ],
                                 [
                                     'attribute' =>'title',
-                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px; width: 300px;'],
                                     'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'عنوان خرید'],
                                 ],
                                 //3
@@ -132,6 +132,12 @@ if(isset($sessoin['user']))
                                     'attribute' =>'purchase_code',
                                     'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;  width:200px;'],
                                     'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'کد خرید'],
+                                ],
+
+                                [
+                                    'attribute' =>'description',
+                                    'headerOptions' => ['class' => 'bg-success text-center', 'style'=>'height:80px; line-height:80px;'],
+                                    'contentOptions' => ['class' => 'text-center text-success', 'style'=>"vertical-align: middle;min-width:150px;font-size:16px;", 'title'=>'توضیحات'],
                                 ],
 
                                 [

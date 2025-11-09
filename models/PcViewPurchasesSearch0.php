@@ -18,7 +18,7 @@ class PcViewPurchasesSearch extends PcViewPurchases
     {
         return [
             [['id', 'area', 'creator_id', 'created_at', 'modifier_id', 'modified_at'], 'integer'],
-            [['title', 'lom', 'factor', 'creator', 'modifier', 'purchase_code', 'description'], 'safe'],
+            [['title', 'lom', 'factor', 'creator', 'modifier', 'purchase_code'], 'safe'],
             [['done'], 'boolean'],
         ];
     }
@@ -32,8 +32,7 @@ class PcViewPurchasesSearch extends PcViewPurchases
         return Model::scenarios();
     }
 
-
-        public function toPersianDigits($str)
+    public function toPersianDigits($str)
     {
         $persianDigits = [
             '0' => '۰',
@@ -68,7 +67,7 @@ class PcViewPurchasesSearch extends PcViewPurchases
 
         return (int)strtr($str, $englishDigits);
     }
-    
+
     /**
      * Creates data provider instance with search query applied
      *
@@ -110,8 +109,7 @@ class PcViewPurchasesSearch extends PcViewPurchases
             ->andFilterWhere(['ilike', 'factor', $this->factor])
             ->andFilterWhere(['ilike', 'creator', $this->creator])
             ->andFilterWhere(['ilike', 'modifier', $this->modifier])
-            ->andFilterWhere(['ilike', 'purchase_code', $this->purchase_code])
-            ->andFilterWhere(['ilike', 'description', $this->description]);
+            ->andFilterWhere(['ilike', 'purchase_code', $this->toPersianDigits($this->purchase_code)]);
 
         return $dataProvider;
     }
